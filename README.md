@@ -1,1 +1,1 @@
-# fastapi-postgres-nginx-pgadmin-adminer
+# fastapi-db-nginx-pgadmin-adminer
