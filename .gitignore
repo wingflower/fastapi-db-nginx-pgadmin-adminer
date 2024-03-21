@@ -85,5 +85,5 @@ app/venv.bak/
 logs/access.log
 logs/error.log
 
-# PgAdmin files
-pgdata
+# DB files
+db
