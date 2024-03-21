@@ -15,7 +15,13 @@ services:
     volumes:
       - ${APP_DIR}:/app/was/app
       - ${REQUIREMENTS}:/app/was/requirements.txt
-    entrypoint: ["python", "/app/was/app/main.py"]
+    entrypoint: ["uvicorn"]
+    command: 
+      - "app.main:app"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "10004"
     networks:
       - backend-network
 
