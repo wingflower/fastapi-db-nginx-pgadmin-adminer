@@ -23,7 +23,8 @@ services:
       - "--port"
       - "10004"
     networks:
-      - backend-network
+      backend-network:
+        ipv4_address: ${FASTAPI_IP}
 
   nginx:
     image: ${NGINX_IMAGE}
@@ -38,7 +39,8 @@ services:
       - ${NGINX_CONF_DIR}:/etc/nginx/conf.d
       - ${NGINX_LOGS}:/var/log/nginx
     networks:
-      - backend-network
+      backend-network:
+        ipv4_address: ${NGINX_IP}
 
   postgres:
     image: ${POSTGRES_IMAGE}
@@ -54,7 +56,20 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     networks:
-      - backend-network
+      backend-network:
+        ipv4_address: ${POSTGRES_IP}
+
+  adminer:
+    image: ${ADMINER_IMAGE}
+    restart: always
+    container_name: ${ADMINER_CONTAINER}
+    ports:
+      - ${ADMINER_HOST_PORT}:8080
+    depends_on:
+      - postgres
+    networks:
+      backend-network:
+        ipv4_address: ${ADMINER_IP}
 
   pgadmin:
     depends_on:
@@ -69,19 +84,13 @@ services:
     ports:
       - ${PGADMIN_HOST_PORT}:${PGADMIN_LISTEN_PORT}
     networks:
-      - backend-network
-
-  adminer:
-    image: ${ADMINER_IMAGE}
-    restart: always
-    container_name: ${ADMINER_CONTAINER}
-    ports:
-      - ${ADMINER_HOST_PORT}:8080
-    depends_on:
-      - postgres
-    networks:
-      - backend-network
+      backend-network:
+        ipv4_address: ${PGADMIN_IP}
 
 networks:
   backend-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: ${NETWORK_SUBNET}
+          gateway: ${NETWORK_GATEWAY}

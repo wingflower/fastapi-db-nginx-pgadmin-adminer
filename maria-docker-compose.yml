@@ -23,7 +23,8 @@ services:
       - "--port"
       - "10004"
     networks:
-      - backend-network
+      backend-network:
+        ipv4_address: ${FASTAPI_IP}
 
   nginx:
     image: ${NGINX_IMAGE}
@@ -38,9 +39,10 @@ services:
       - ${NGINX_CONF_DIR}:/etc/nginx/conf.d
       - ${NGINX_LOGS}:/var/log/nginx
     networks:
-      - backend-network
+      backend-network:
+        ipv4_address: ${NGINX_IP}
 
-  maria :
+  mariadb :
     image: ${MARIADB_IMAGE}
     container_name: ${MARIADB_CONTAINER}
     restart: always
@@ -58,7 +60,8 @@ services:
       - MARIADB_DATABASE=${MARIADB_DB}
       - MARIADB_PASSWORD=${MARIADB_PASSWORD}
     networks:
-      - backend-network
+      backend-network:
+        ipv4_address: ${MARIADB_IP}
 
   adminer:
     image: ${ADMINER_IMAGE}
@@ -69,8 +72,13 @@ services:
     depends_on:
       - maria
     networks:
-      - backend-network
+      backend-network:
+        ipv4_address: ${ADMINER_IP}
 
 networks:
   backend-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: ${NETWORK_SUBNET}
+          gateway: ${NETWORK_GATEWAY}
