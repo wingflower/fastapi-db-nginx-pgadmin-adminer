@@ -9,7 +9,7 @@ services:
     restart: on-failure
     container_name: ${FASTAPI_CONTAINER}
     depends_on:
-      - maria
+      - mariadb
       # ports:
       #   - ${FASTAPI_HOST_PORT}:10004
     volumes:
@@ -70,7 +70,7 @@ services:
     ports:
       - ${ADMINER_HOST_PORT}:8080
     depends_on:
-      - maria
+      - mariadb
     networks:
       backend-network:
         ipv4_address: ${ADMINER_IP}
