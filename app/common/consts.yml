@@ -1,14 +1,33 @@
-API_ENV : "local"
-DB_USER : "test"
-DB_PASSWD : "test"
-DB_ADDR : "mariadb"
-DB_PORT : 3306
-DB_NAME : "test"
-JWT_SECRET : "test"
-JWT_ALGORITHM : "HS256"
-EXCEPT_PATH_LIST :
-  - "/"
-  - "/openapi.json"
-EXCEPT_PATH_REGEX : "^(/docs|/redoc|/api/auth)"
-MAX_API_KEY : 3
-MAX_API_WHITELIST : 10
+API_ENV: "local"
+
+LOCAL_CONFIG:
+  DB_USER: &local_db_user "test"
+  DB_PASSWD: &local_db_passwd "test"
+  DB_ADDR: &local_db_addr "mariadb"
+  DB_PORT: &local_db_port 3306
+  DB_NAME: &local_db_name "test"
+  DB_URL: "mysql+pymysql://*local_db_user:*local_db_passwd@*local_db_addr:*local_db_port/*local_db_name?charset=utf8mb4"
+  JWT_SECRET: "test"
+  JWT_ALGORITHM: "HS256"
+  EXCEPT_PATH_LIST:
+    - "/"
+    - "/openapi.json"
+  EXCEPT_PATH_REGEX: "^(/docs|/redoc|/api/auth)"
+  MAX_API_KEY: 3
+  MAX_API_WHITELIST: 10
+
+PROD_CONFIG:
+  DB_USER: &prod_db_user "test"
+  DB_PASSWD: &prod_db_passwd "test"
+  DB_ADDR: &prod_db_addr "mariadb"
+  DB_PORT: &prod_db_port 3306
+  DB_NAME: &prod_db_name "test"
+  DB_URL: "mysql+pymysql://*prod_db_user:*prod_db_passwd@*prod_db_addr:*prod_db_port/*prod_db_name?charset=utf8mb4"
+  JWT_SECRET: "test"
+  JWT_ALGORITHM: "HS256"
+  EXCEPT_PATH_LIST:
+    - "/"
+    - "/openapi.json"
+  EXCEPT_PATH_REGEX: "^(/docs|/redoc|/api/auth)"
+  MAX_API_KEY: 3
+  MAX_API_WHITELIST: 10

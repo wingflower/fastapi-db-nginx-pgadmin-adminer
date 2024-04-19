@@ -2,19 +2,22 @@ import sys
 
 from os import path
 from yaml import safe_load
-from dataclasses import dataclass
+from collections import namedtuple
+from app.common import consts
 
 
 base_dir = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 
 
-try:
-    with open('./consts.yml') as f:
-        ENV = safe_load(f)
-except:
-    sys.exit()
+def nestednamedtuple(dictionary: dict) -> namedtuple:
+    if isinstance(dictionary, Mapping) and not isinstance(dictionary, fdict):
+        for key, value in list(dictionary.items()):
+            dictionary[key] = nestednamedtuple(value)
+        return namedtuple("namedtupled", dictionary)(**dictionary)
+    elif isinstance(dictionary, list):
+        return [nestednamedtuple(item) for item in dictionary]
 
-print(ENV)
+    return dictionary
 
 
 def singleton(class_):
@@ -37,36 +40,26 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-@dataclass
+@singleton
 class Config:
-    BASE_DIR = base_dir
-    DB_POOL_RECYCLE: int = 900
-    DB_ECHO: bool = True
+    def __init__(self, global_name="global_config"):
+        self.global_name = f"{global_name}"
+        self.data = self._set_config()
 
-
-@singleton
-@dataclass
-class LocalConfig(Config):
-    DB_URL: str = "mysql+pymysql://{DB_USER}:{DB_PASSWD}@{DB_ADDR}:{DB_PORT}/{DB_NAME}?charset=utf8mb4".format_map(ENV)
-    TRUSTED_HOSTS = ["*"]
-    ALLOW_SITE = ["*"]
-
-
-@singleton
-@dataclass
-class ProdConfig(Config):
-    DB_URL: str = "mysql+pymysql://{DB_USER}:{DB_PASSWD}@{DB_ADDR}:{DB_PORT}/{DB_NAME}?charset=utf8mb4".format_map(ENV)
-    TRUSTED_HOSTS = ["*"]
-    ALLOW_SITE = ["*"]
-
-
-def conf():
-    if ENV.get("API_ENV", "local") == "local":
-        return LocalConfig()
-    else:
-        return ProdConfig()
-
-
-if __name__ == '__main__':
-    CFG = conf()
-    print(CFG.__dict__)
+    def _set_config(self):
+        try:
+            if consts.API_ENV.lower() == "local":
+                return consts.local_config()
+            else:
+                return consts.prod_config()
+            # config_file = path.join(base_dir, 'app/common/consts.yml')
+            # with open(config_file) as f:
+            #     ENV = safe_load(f)
+            #     if ENV.get("API_ENV", "local").lower() == "local":
+            #         CONF = ENV.get("LOCAL_CONFIG")
+            #     else:
+            #         CONF = ENV.get("PROD_CONFIG")
+            # return CONF
+        except Exception as e:
+            print(e)
+            return {}
