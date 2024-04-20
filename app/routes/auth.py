@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from app.common.consts import JWT_SECRET, JWT_ALGORITHM
+from app.common.consts import conf
 from app.database.conn import db
 from app.database.schema import Users
 from app.models.user_models import SnsType, Token, UserToken, UserRegister
@@ -88,5 +88,5 @@ def create_access_token(*, data: dict = None, expires_delta: int = None):
     to_encode = data.copy()
     if expires_delta:
         to_encode.update({"exp": datetime.utcnow() + timedelta(hours=expires_delta)})
-    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, conf().JWT_SECRET, algorithm=conf().JWT_ALGORITHM)
     return encoded_jwt

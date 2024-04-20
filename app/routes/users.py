@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.requests import Request
 
-from app.common.consts import MAX_API_KEY, MAX_API_WHITELIST
+from app.common.consts import conf
 from app.database.conn import db
 from app.database.schema import Users, ApiKeys, ApiWhiteLists
 from app.errors import exceptions as ex
@@ -63,7 +63,7 @@ async def create_api_keys(request: Request, params: AddApiKey, session: Session 
     user = request.state.user
 
     api_keys = ApiKeys.filter(session, user_id=user.id, status='active').count()
-    if api_keys == MAX_API_KEY:
+    if api_keys == conf().MAX_API_KEY:
         raise ex.MaxKeyCountEx()
 
     alphabet = string.ascii_letters + string.digits
@@ -124,7 +124,7 @@ async def create_api_keys(request: Request, key_id: int, ip: CreateAPIWhiteLists
         _ip = ipaddress.ip_address(ip.ip_addr)
     except Exception as e:
         raise ex.InvalidIpEx(ip.ip_addr, e)
-    if ApiWhiteLists.filter(api_key_id=key_id).count() == MAX_API_WHITELIST:
+    if ApiWhiteLists.filter(api_key_id=key_id).count() == conf().MAX_API_WHITELIST:
         raise ex.MaxWLCountEx()
     ip_dup = ApiWhiteLists.get(api_key_id=key_id, ip_addr=ip.ip_addr)
     if ip_dup:

@@ -1,12 +1,12 @@
 import sys
 
-from os import path
+from os import path, environ
 from yaml import safe_load
 from collections import namedtuple
-from app.common import consts
+from app.common.consts import LocalConfig, ProdConfig
 
 
-base_dir = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
+# base_dir = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 
 
 def nestednamedtuple(dictionary: dict) -> namedtuple:
@@ -48,10 +48,10 @@ class Config:
 
     def _set_config(self):
         try:
-            if consts.API_ENV.lower() == "local":
-                return consts.local_config()
+            if envrion.get("API_ENV", "local").lower()  == "local":
+                return LocalConfig()
             else:
-                return consts.prod_config()
+                return ProdConfig()
             # config_file = path.join(base_dir, 'app/common/consts.yml')
             # with open(config_file) as f:
             #     ENV = safe_load(f)

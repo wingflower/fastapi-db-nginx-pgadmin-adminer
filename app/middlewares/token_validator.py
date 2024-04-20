@@ -15,16 +15,13 @@ from app.database.conn import db
 from app.database.schema import Users, ApiKeys
 from app.errors import exceptions as ex
 
-from app.common.configure import Config
+from app.common.consts import conf
 from app.errors.exceptions import APIException, SqlFailureEx, APIQueryStringEx
 from app.models.user_models import UserToken
 
 from app.utils.date_utils import D
 from app.utils.logger import api_logger
 from app.utils.query_utils import to_dict
-
-
-config = Config().data
 
 
 async def access_control(request: Request, call_next):
@@ -39,7 +36,7 @@ async def access_control(request: Request, call_next):
     cookies = request.cookies
 
     url = request.url.path
-    if await url_pattern_check(url, config["EXCEPT_PATH_REGEX"]) or url in config["EXCEPT_PATH_LIST"]:
+    if await url_pattern_check(url, conf().EXCEPT_PATH_REGEX) or url in conf().EXCEPT_PATH_LIST:
         response = await call_next(request)
         if url != "/":
             await api_logger(request=request, response=response)
@@ -124,7 +121,7 @@ async def token_decode(access_token):
     """
     try:
         access_token = access_token.replace("Bearer ", "")
-        payload = jwt.decode(access_token, key=config["JWT_SECRET"], algorithms=[config["JWT_ALGORITHM"]])
+        payload = jwt.decode(access_token, key=conf().JWT_SECRET, algorithms=[conf().JWT_ALGORITHM])
     except ExpiredSignatureError:
         raise ex.TokenExpiredEx()
     except DecodeError:

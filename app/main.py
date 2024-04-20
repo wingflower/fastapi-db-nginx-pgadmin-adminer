@@ -1,5 +1,7 @@
 import uvicorn
 
+from dataclasses import asdict
+
 from fastapi import FastAPI, Depends
 from fastapi.security import APIKeyHeader
 
@@ -13,11 +15,13 @@ from starlette.requests import Request
 # from starlette.websockets import WebSocket
 
 from app.database.conn import db
-from app.common.configure import Config
+from app.common.consts import conf
 from app.middlewares.token_validator import access_control
 from app.middlewares.trusted_hosts import TrustedHostMiddleware
 
-from app.routes import index
+from app.routes import (
+    index, auth, users
+)
 
 
 API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
@@ -28,23 +32,26 @@ def create_app():
 
     :return:
     """
-    config = Config().data
+    c = conf()
     app = FastAPI()
-    db.init_app(app, **config)
+    conf_dict = asdict(c)
+    db.init_app(app, **conf_dict)
 
     # 미들웨어 정의
     app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch=access_control)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=config["ALLOW_SITE"],
+        allow_origins=conf().ALLOW_SITE,
         allow_credentials=True,
-        allow_methods=config["ALLOW_METHODS"],
-        allow_headers=config["ALLOW_HEADERS"]
+        allow_methods=conf().ALLOW_METHODS,
+        allow_headers=conf().ALLOW_HEADERS
     )
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=config["TRUSTED_HOSTS"], except_path=["/health"])
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=conf().TRUSTED_HOSTS, except_path=["/health"])
 
     # 라우터 정의
     app.include_router(index.router)
+    app.include_router(auth.router, tags=["Authentication"], prefix="/api")
+    app.include_router(users.router, tags=["Users"], prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
 
     return app
 
