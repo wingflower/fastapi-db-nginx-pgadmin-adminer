@@ -2,12 +2,13 @@ from datetime import datetime
 from enum import Enum
 
 from pydantic import Field
-from pydantic.main import BaseModel
+from pydantic.main import BaseModel, ConfigDict
 from pydantic.networks import EmailStr, IPvAnyAddress
 
 
 class UserRegister(BaseModel):
     # pip install 'pydantic[email]'
+    model_config = ConfigDict(from_attributes=True)
     email: EmailStr = None
     pw: str = None
 
@@ -30,13 +31,10 @@ class MessageOk(BaseModel):
 class UserToken(BaseModel):
     id: int
     email: str = None
-    name: str = None
-    phone_number: str = None
-    profile_img: str = None
-    sns_type: str = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+        # orm_mode = True
 
 class UserMe(BaseModel):
     id: int
@@ -47,14 +45,16 @@ class UserMe(BaseModel):
     sns_type: str = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+        # orm_mode = True
 
 
 class AddApiKey(BaseModel):
     user_memo: str = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+        # orm_mode = True
 
 
 class GetApiKeyList(AddApiKey):
@@ -75,4 +75,5 @@ class GetAPIWhiteLists(CreateAPIWhiteLists):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+        # orm_mode = True

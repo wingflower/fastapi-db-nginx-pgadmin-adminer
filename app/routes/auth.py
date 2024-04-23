@@ -48,7 +48,7 @@ async def register(sns_type: SnsType, params: UserRegister, session: Session = D
             return JSONResponse(status_code=400, content=dict(msg="EMAIL_EXISTS"))
         hash_pw = bcrypt.hashpw(params.pw.encode("utf-8"), bcrypt.gensalt())
         new_user = Users.create(session, auto_commit=True, pw=hash_pw, email=params.email)
-        token = dict(Authorization=f"Bearer {create_access_token(data=UserToken.from_orm(new_user).dict(exclude={'pw', 'marketing_agree'}),)}")
+        token = dict(Authorization=f"Bearer {create_access_token(data=UserToken.model_validate(new_user).dict(exclude={'pw', 'marketing_agree'}),)}")
         return token
     return JSONResponse(status_code=400, content=dict(msg="NOT_SUPPORTED"))
 
@@ -72,7 +72,7 @@ async def login(sns_type: SnsType, params: UserRegister):
         if not is_verified:
             return JSONResponse(status_code=400, content=dict(msg="NO_MATCH_USER"))
         token = dict(
-            Authorization=f"Bearer {create_access_token(data=UserToken.from_orm(user).dict(exclude={'pw', 'marketing_agree'}),)}")
+            Authorization=f"Bearer {create_access_token(data=UserToken.model_validate(user).dict(exclude={'pw', 'marketing_agree'}),)}")
         return token
     return JSONResponse(status_code=400, content=dict(msg="NOT_SUPPORTED"))
 
