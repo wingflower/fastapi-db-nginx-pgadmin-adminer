@@ -1,8 +1,8 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import Field
-from pydantic.main import BaseModel, ConfigDict
+from pydantic import Field, ConfigDict
+from pydantic.main import BaseModel
 from pydantic.networks import EmailStr, IPvAnyAddress
 
 
